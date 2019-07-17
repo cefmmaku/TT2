@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">TT2</string>
+    <string name="bienvenido">Bienvenido, haga click sobre la pantalla para desaparecer éste recuadro e ir a la cámara.</string>
+    <string name="instrucciones">Enfoque el letrero del camión dentr del cuadrado guía y presione la pantalla para tomar la fotografía.</string>
+</resources>
