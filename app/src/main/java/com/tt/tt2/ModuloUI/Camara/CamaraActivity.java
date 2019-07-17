@@ -1,11 +1,17 @@
 package com.tt.tt2.ModuloUI.Camara;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 
+import com.tt.tt2.Algoritmos.Segmentacion;
 import com.tt.tt2.R;
 import com.tt.tt2.TTS.ModuloTTS;
 
@@ -15,6 +21,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import io.fotoapparat.Fotoapparat;
 import io.fotoapparat.log.LoggersKt;
 import io.fotoapparat.parameter.ScaleType;
+import io.fotoapparat.result.BitmapPhoto;
+import io.fotoapparat.result.PhotoResult;
+import io.fotoapparat.result.WhenDoneListener;
 import io.fotoapparat.selector.FlashSelectorsKt;
 import io.fotoapparat.selector.FocusModeSelectorsKt;
 import io.fotoapparat.selector.LensPositionSelectorsKt;
@@ -31,51 +40,10 @@ public class CamaraActivity extends AppCompatActivity{
     private ModuloTTS tts;
 
     private static Fotoapparat mManejadorCamara;
-    //private TextureView mTextureView;
 
-/*    //Check state orientation of output image
-    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
-    static{
-        ORIENTATIONS.append(Surface.ROTATION_0,90);
-        ORIENTATIONS.append(Surface.ROTATION_90,0);
-        ORIENTATIONS.append(Surface.ROTATION_180,270);
-        ORIENTATIONS.append(Surface.ROTATION_270,180);
-    }
+    private Bitmap mFotografía;
 
-    private String cameraId;
-    private CameraDevice cameraDevice;
-    private CameraCaptureSession cameraCaptureSessions;
-    private CaptureRequest.Builder captureRequestBuilder;
-    private Size imageDimension;
-    private ImageReader imageReader;
-
-    //Save to FILE
-    private File file;
-    private static final int REQUEST_CAMERA_PERMISSION = 200;
-    private boolean mFlashSupported;
-    private Handler mBackgroundHandler;
-    private HandlerThread mBackgroundThread;*/
-
-   /* CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
-        @Override
-        public void onOpened(@NonNull CameraDevice camera) {
-            cameraDevice = camera;
-            createCameraPreview();
-
-        }
-
-        @Override
-        public void onDisconnected(@NonNull CameraDevice cameraDevice) {
-            cameraDevice.close();
-        }
-
-        @Override
-        public void onError(@NonNull CameraDevice cameraDevice, int i) {
-            cameraDevice.close();
-            cameraDevice=null;
-        }
-    };
-*/
+    private ImageView mGuia;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +52,7 @@ public class CamaraActivity extends AppCompatActivity{
         Objects.requireNonNull(getSupportActionBar()).hide();
         setContentView(R.layout.activity_guia);
         configurarVistas();
+        dibujarGuia();
         configuraCamara();
         iniciarPreview();
     }
@@ -100,23 +69,41 @@ public class CamaraActivity extends AppCompatActivity{
         tts.detenerVoz();
     }
 
-
-
     private void configurarVistas()
         {
             mCamaraView = findViewById(R.id.camera_view);
+                mCamaraView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        tomarFoto();
+                    }
+                });
+
             mInstruccionesCIV = findViewById(R.id.guia_escuchar_instrucciones_btn);
                 mInstruccionesCIV.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         playInstrucciones();
-                   };
+                   }
                 });
+
+            mGuia = findViewById(R.id.camara_guia);
         }
+
+    private void dibujarGuia(){
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = (int) (displayMetrics.heightPixels * 0.6);
+        int width = (int) (displayMetrics.widthPixels * 0.4);
+        ViewGroup.LayoutParams params = mGuia.getLayoutParams();
+            params.height = height;
+            params.width = width;
+        mGuia.setLayoutParams(params);
+            mGuia.setVisibility(View.VISIBLE);
+    }
 
     private void configuraCamara()
         {
-
             mManejadorCamara =
             Fotoapparat.with(this)
             .into(mCamaraView)           // view which will draw the camera preview
@@ -128,11 +115,11 @@ public class CamaraActivity extends AppCompatActivity{
                     FocusModeSelectorsKt.autoFocus(),        // in case if continuous focus is not available on device, auto focus will be used
                     FocusModeSelectorsKt.fixed()             // if even auto focus is not available - fixed focus mode will be used
             ))
-            .flash(SelectorsKt.firstAvailable(      // (optional) similar to how it is done for focus mode, this time for flash
+            /*.flash(SelectorsKt.firstAvailable(      // (optional) similar to how it is done for focus mode, this time for flash
                     FlashSelectorsKt.autoRedEye(),
                     FlashSelectorsKt.autoFlash(),
                     FlashSelectorsKt.torch()
-            ))
+            ))*/
             .logger(LoggersKt.loggers(            // (optional) we want to log camera events in 2 places at once
                     LoggersKt.logcat(),           // ... in logcat
                     LoggersKt.fileLogger(this)    // ... and to file
@@ -152,8 +139,19 @@ public class CamaraActivity extends AppCompatActivity{
             tts.escucharEnAudio(getResources().getString(R.string.instrucciones));
         }
 
-    private void tomarFoto()
-        {
-            mManejadorCamara.takePicture();
-        }
+    private void tomarFoto() {
+
+        PhotoResult resultado = mManejadorCamara.takePicture();
+
+        resultado.toBitmap().whenDone(new WhenDoneListener<BitmapPhoto>() {
+            @Override
+            public void whenDone(@Nullable BitmapPhoto bitmapPhoto) {
+                if (bitmapPhoto == null) {
+                 //   Log.e(LOGGING_TAG, "Couldn't capture photo.");
+                    return;
+                }
+                mGuia.setImageBitmap(Segmentacion.cortarImagen(bitmapPhoto.bitmap));
+            }
+        });
+    }
 }
