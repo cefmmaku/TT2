@@ -1,9 +1,16 @@
 package com.tt.tt2.OCR;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 
 public class ModuloOCR {
@@ -31,40 +38,42 @@ public class ModuloOCR {
     public ModuloOCR(Context context, String language) {
 
         mTess = new TessBaseAPI();
-        /*String DATA_PATH = context.getFilesDir() + "/tesseract/";
+        String DATA_PATH = context.getFilesDir() + "/tesseract/";
         Log.d("DataPath", "datapath " + DATA_PATH);
         File dataIdiomaLocal = new File(DATA_PATH + "tessdata/");
         if (dataIdiomaLocal.exists()) {
-            try {
-                AssetManager assetManager = context.getAssets();
-                InputStream in = assetManager.open(language + ".traineddata");
+            try
+                {
+                    AssetManager assetManager = context.getAssets();
+                    InputStream in = assetManager.open(language + ".traineddata");
 
-                //GZIPInputStream gin = new GZIPInputStream(in);
+                    //GZIPInputStream gin = new GZIPInputStream(in);
 
-                File outFile = new File(DATA_PATH + "tessdata/", language + ".traineddata");
-                outFile.getParentFile().mkdir();
-                OutputStream out = new FileOutputStream(outFile);
-                // Transfer bytes from in to out
-                byte[] buf = new byte[1024];
-                int len;
-                //while ((lenf = gin.read(buff)) > 0) {
-                while ((len = in.read(buf)) > 0) {
-                    out.write(buf, 0, len);
+                    File outFile = new File(DATA_PATH + "tessdata/", language + ".traineddata");
+                    outFile.getParentFile().mkdir();
+                    OutputStream out = new FileOutputStream(outFile);
+                    // Transfer bytes from in to out
+                    byte[] buf = new byte[1024];
+                    int len;
+                    //while ((lenf = gin.read(buff)) > 0) {
+                    while ((len = in.read(buf)) > 0)
+                        {
+                            out.write(buf, 0, len);
+                        }
+                    in.close();
+                    //gin.close();
+                    out.close();
                 }
-                in.close();
-                //gin.close();
-                out.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                Log.d("DataPath", "Error " + e.toString());
-            } catch (IOException e) {
-                Log.d("DataPath", "Was unable to copy " + language + " traineddata " + e.toString());
-            }
+            catch (Exception e)
+                {
+                    e.printStackTrace();
+                    Log.d("DataPath", "Error " + e.toString());
+                }
         }
         else
         {
             Log.d("DataPath", "Existe");
-        }*/
+        }
 
         //mTess.init(DATA_PATH, language);
 

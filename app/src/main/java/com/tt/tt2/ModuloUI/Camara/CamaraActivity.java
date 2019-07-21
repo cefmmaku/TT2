@@ -1,5 +1,6 @@
 package com.tt.tt2.ModuloUI.Camara;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,13 +9,16 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.tt.tt2.Algoritmos.Segmentacion;
+import com.tt.tt2.ModuloUI.PostProcesamiento.ResultadoActivity;
+import com.tt.tt2.OCR.ModuloOCR;
 import com.tt.tt2.R;
 import com.tt.tt2.TTS.ModuloTTS;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -24,7 +28,6 @@ import io.fotoapparat.parameter.ScaleType;
 import io.fotoapparat.result.BitmapPhoto;
 import io.fotoapparat.result.PhotoResult;
 import io.fotoapparat.result.WhenDoneListener;
-import io.fotoapparat.selector.FlashSelectorsKt;
 import io.fotoapparat.selector.FocusModeSelectorsKt;
 import io.fotoapparat.selector.LensPositionSelectorsKt;
 import io.fotoapparat.selector.ResolutionSelectorsKt;
@@ -51,6 +54,7 @@ public class CamaraActivity extends AppCompatActivity{
         requestWindowFeature(Window.FEATURE_NO_TITLE);//will hide the title
         Objects.requireNonNull(getSupportActionBar()).hide();
         setContentView(R.layout.activity_guia);
+        playInstrucciones();
         configurarVistas();
         dibujarGuia();
         configuraCamara();
@@ -147,11 +151,17 @@ public class CamaraActivity extends AppCompatActivity{
             @Override
             public void whenDone(@Nullable BitmapPhoto bitmapPhoto) {
                 if (bitmapPhoto == null) {
-                 //   Log.e(LOGGING_TAG, "Couldn't capture photo.");
+                     tts.escucharEnAudio(getResources().getString(R.string.fallo_tomar_foto));
                     return;
                 }
-                mGuia.setImageBitmap(Segmentacion.cortarImagen(bitmapPhoto.bitmap));
+                procesarFoto(Segmentacion.cortarImagen(bitmapPhoto.bitmap));
             }
         });
     }
+
+    private void procesarFoto(Bitmap segmentada)
+        {
+            ModuloOCR ocr = new ModuloOCR(this, "spa");
+            Toast.makeText(this, "Extraido: " + ocr.extraerTexto(segmentada), Toast.LENGTH_SHORT).show();
+        }
 }

@@ -1,7 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.tt.tt2">
-
     <uses-permission android:name="android.permission.CAMERA" />
     <application
         android:allowBackup="true"
@@ -19,5 +17,7 @@
         </activity>
         <activity android:name=".ModuloUI.Camara.CamaraActivity"
             android:screenOrientation="landscape"/>
+        <activity android:name=".ModuloUI.PostProcesamiento.ResultadoActivity"
+            android:screenOrientation="portrait"/>
     </application>
 </manifest>
