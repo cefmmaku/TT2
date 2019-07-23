@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.ProgressBar;
 
 import com.tt.tt2.Algoritmos.Segmentacion;
 import com.tt.tt2.ModuloUI.PostProcesamiento.ResultadoActivity;
@@ -18,7 +18,6 @@ import com.tt.tt2.OCR.ModuloOCR;
 import com.tt.tt2.R;
 import com.tt.tt2.TTS.ModuloTTS;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -36,19 +35,19 @@ import io.fotoapparat.view.CameraView;
 
 public class CamaraActivity extends AppCompatActivity{
 
-    private CircleImageView mInstruccionesCIV;
-
     private CameraView mCamaraView;
 
     private ModuloTTS tts;
 
     private static Fotoapparat mManejadorCamara;
 
-    private Bitmap mFotografía;
-
     private ImageView mGuia;
 
     private ModuloOCR mTessOCR;
+
+    private ProgressBar mLoader;
+
+    public static final String RESULTADO_OCR_KEY = "ocrtexto";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +84,7 @@ public class CamaraActivity extends AppCompatActivity{
                     }
                 });
 
-            mInstruccionesCIV = findViewById(R.id.guia_escuchar_instrucciones_btn);
+            CircleImageView mInstruccionesCIV = findViewById(R.id.guia_escuchar_instrucciones_btn);
                 mInstruccionesCIV.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -93,9 +92,15 @@ public class CamaraActivity extends AppCompatActivity{
                    }
                 });
 
+            mLoader = findViewById(R.id.loader_camara_activity);
+
             mGuia = findViewById(R.id.camara_guia);
         }
 
+    /**
+     * Método que dibuja la guia sobre la pantalla respetando la proporción establecida de
+     * 60% de alto y 40% de ancho.
+     * */
     private void dibujarGuia(){
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -108,6 +113,9 @@ public class CamaraActivity extends AppCompatActivity{
             mGuia.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Método que coloca y configura la cámara agregando los parámetros necesarios para su funcionamiento.
+     * */
     private void configuraCamara()
         {
             mManejadorCamara =
@@ -134,17 +142,27 @@ public class CamaraActivity extends AppCompatActivity{
         }
 
 
+    /**
+     * Método que inicia el preview en la pantalla.
+     * */
     private void iniciarPreview()
         {
             mManejadorCamara.start();
         }
 
+    /**
+     * Método que hace al TTS rteproducir las instrucciones.
+     * */
     private void playInstrucciones()
         {
             tts = new ModuloTTS(this);
             tts.escucharEnAudio(getResources().getString(R.string.instrucciones));
         }
 
+    /**
+     * Método que se ejecuta una vez que se presiona la pantalla, activa el método de tomar fotografía
+     * y obtiene el resultado de la misma.
+     * */
     private void tomarFoto() {
 
         PhotoResult resultado = mManejadorCamara.takePicture();
@@ -161,14 +179,24 @@ public class CamaraActivity extends AppCompatActivity{
         });
     }
 
+    /**
+     * Método en el que se trabajará la imagen antes de ser enviada al OCR, aquí se aplicarán
+     * todos los métodos y algoritmos necesarios para tratar la imagen, el pre procesamiento.
+     * @param segmentada la imagen cortada en forma del cuadro guía y en formato de Bitmap.
+     * */
     private void procesarFoto(Bitmap segmentada)
         {
             mTessOCR = new ModuloOCR(this, "spa");
             doOCR(segmentada);
         }
 
+    /**
+     * Método que manda a llamar al OCR en un hilo principal para comenzar la extracción del texto en un hilo nuevo.
+     * @param bitmap la imagen ya segmentada de donde tomará el texto.
+     * */
     private void doOCR (final Bitmap bitmap)
     {
+        mLoader.setVisibility(View.VISIBLE);
         new Thread(new Runnable()
         {
             public void run() {
@@ -180,8 +208,10 @@ public class CamaraActivity extends AppCompatActivity{
                         if (srcText != null && !srcText.equals(""))
                         {
                             //srcText contiene el texto reconocido
-                            Intent irAResultado;
-                           tts.escucharEnAudio(srcText);
+                            Intent irAResultado = new Intent(getApplicationContext(), ResultadoActivity.class);
+                            irAResultado.putExtra(RESULTADO_OCR_KEY, srcText);
+                            startActivity(irAResultado);
+                            mLoader.setVisibility(View.GONE);
                         }
                         mTessOCR.onDestroy();
                     }

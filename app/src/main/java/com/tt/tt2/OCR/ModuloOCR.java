@@ -51,6 +51,13 @@ public class ModuloOCR {
         mTess.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO_OSD);
     }
 
+    /**
+     * Método que copia el archivo de entrenamiento de idioma en la carpeta de datos del dispositivo.
+     * @param contexto Contexto de la aplicación para el uso de métodos.
+     * @param idioma idioma del archivo de configuración en formato ISO 639-2/B.
+     * @param rutaArchivo la ruta dentro del dispositivo donde se va a copiar el archivo de entrenamiento.
+     * @param extension la extensión del archivo de entrenamiento.
+     * */
     private void copiarArchivoIdioma(Context contexto, String idioma, String rutaArchivo, String extension) {
 
         AssetManager assetManager = contexto.getAssets();
@@ -65,7 +72,7 @@ public class ModuloOCR {
                     File outFile = new File(rutaArchivo, idioma + extension);
                     outFile.createNewFile();
                     out = new FileOutputStream(outFile);
-                    copyFile(in, out);
+                    copiarArchivo(in, out);
                 }
             catch(IOException e)
                 {
@@ -81,7 +88,7 @@ public class ModuloOCR {
                                 }
                             catch (IOException e)
                                 {
-                                    // NOOP
+                                    // No hago nada 6u6
                                 }
                         }
                     if (out != null)
@@ -92,13 +99,19 @@ public class ModuloOCR {
                                 }
                             catch (IOException e)
                                 {
-                                    // NOOP
+                                    // Acá tampoco @3@
                                 }
                     }
 
         }
     }
-    private void copyFile(InputStream in, OutputStream out) throws IOException
+
+    /**
+     * Método que copia el contenido de un archivo entrante A en un nuevo Archivo B.
+     * @param in el InputStream del archivo que va a ser copiado.
+     * @param out el OutputStream donde se va a copiar el contenido del archivo en el InputStream.
+     * */
+    private void copiarArchivo(InputStream in, OutputStream out) throws IOException
         {
             byte[] buffer = new byte[1024];
             int read;

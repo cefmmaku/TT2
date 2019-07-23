@@ -2,7 +2,6 @@ package com.tt.tt2.ModuloUI.Vistas;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -16,8 +15,6 @@ import com.tt.tt2.TTS.ModuloTTS;
 import java.util.Objects;
 
 public class BienvenidaActivity extends AppCompatActivity {
-
-    private ConstraintLayout mRootView;
 
     private ModuloTTS tts;
 
@@ -49,7 +46,7 @@ public class BienvenidaActivity extends AppCompatActivity {
      * */
     private void bindViews()
     {
-        mRootView = findViewById(R.id.bienvenida_activity_root_view);
+        ConstraintLayout mRootView = findViewById(R.id.bienvenida_activity_root_view);
         mRootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

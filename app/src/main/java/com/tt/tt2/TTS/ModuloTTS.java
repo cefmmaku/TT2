@@ -2,7 +2,6 @@ package com.tt.tt2.TTS;
 
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.Voice;
 
 import java.util.Locale;
 
@@ -39,6 +38,9 @@ public class ModuloTTS {
         });
     }
 
+    /**
+     * Método que detiene al TTS de continuar hablando.
+     * */
     public void detenerVoz()
     {
         if(tts != null && tts.isSpeaking()) {
