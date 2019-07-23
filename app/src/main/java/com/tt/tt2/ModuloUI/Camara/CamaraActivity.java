@@ -48,6 +48,8 @@ public class CamaraActivity extends AppCompatActivity{
 
     private ImageView mGuia;
 
+    private ModuloOCR mTessOCR;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -161,7 +163,30 @@ public class CamaraActivity extends AppCompatActivity{
 
     private void procesarFoto(Bitmap segmentada)
         {
-            ModuloOCR ocr = new ModuloOCR(this, "spa");
-            Toast.makeText(this, "Extraido: " + ocr.extraerTexto(segmentada), Toast.LENGTH_SHORT).show();
+            mTessOCR = new ModuloOCR(this, "spa");
+            doOCR(segmentada);
         }
+
+    private void doOCR (final Bitmap bitmap)
+    {
+        new Thread(new Runnable()
+        {
+            public void run() {
+                final String srcText = mTessOCR.extraerTexto(bitmap);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // TODO Auto-generated method stub
+                        if (srcText != null && !srcText.equals(""))
+                        {
+                            //srcText contiene el texto reconocido
+                            Intent irAResultado;
+                           tts.escucharEnAudio(srcText);
+                        }
+                        mTessOCR.onDestroy();
+                    }
+                });
+            }
+        }).start();
+    }
 }

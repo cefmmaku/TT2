@@ -9,6 +9,7 @@ import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -37,50 +38,75 @@ public class ModuloOCR {
      * */
     public ModuloOCR(Context context, String language) {
 
+        String rutaArchivo = context.getFilesDir() + "/tesseract/";
+        String extension = ".traineddata";
+        copiarArchivoIdioma(context, language, rutaArchivo + "tessdata/", extension);
+        File dir = new File(rutaArchivo + "tessdata/");
+        if (!dir.exists())
+            dir.mkdirs();
         mTess = new TessBaseAPI();
-        String DATA_PATH = context.getFilesDir() + "/tesseract/";
-        Log.d("DataPath", "datapath " + DATA_PATH);
-        File dataIdiomaLocal = new File(DATA_PATH + "tessdata/");
-        if (dataIdiomaLocal.exists()) {
-            try
-                {
-                    AssetManager assetManager = context.getAssets();
-                    InputStream in = assetManager.open(language + ".traineddata");
-
-                    //GZIPInputStream gin = new GZIPInputStream(in);
-
-                    File outFile = new File(DATA_PATH + "tessdata/", language + ".traineddata");
-                    outFile.getParentFile().mkdir();
-                    OutputStream out = new FileOutputStream(outFile);
-                    // Transfer bytes from in to out
-                    byte[] buf = new byte[1024];
-                    int len;
-                    //while ((lenf = gin.read(buff)) > 0) {
-                    while ((len = in.read(buf)) > 0)
-                        {
-                            out.write(buf, 0, len);
-                        }
-                    in.close();
-                    //gin.close();
-                    out.close();
-                }
-            catch (Exception e)
-                {
-                    e.printStackTrace();
-                    Log.d("DataPath", "Error " + e.toString());
-                }
-        }
-        else
-        {
-            Log.d("DataPath", "Existe");
-        }
-
-        //mTess.init(DATA_PATH, language);
-
+        mTess.init(rutaArchivo, language);
         mTess.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, whiteList);
         mTess.setVariable(TessBaseAPI.VAR_CHAR_BLACKLIST, blackList);
         mTess.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO_OSD);
     }
+
+    private void copiarArchivoIdioma(Context contexto, String idioma, String rutaArchivo, String extension) {
+
+        AssetManager assetManager = contexto.getAssets();
+
+            InputStream in = null;
+            OutputStream out = null;
+            try
+                {
+                    in = assetManager.open(idioma + extension);
+                    File directorio = new File(rutaArchivo);
+                    directorio.mkdirs();
+                    File outFile = new File(rutaArchivo, idioma + extension);
+                    outFile.createNewFile();
+                    out = new FileOutputStream(outFile);
+                    copyFile(in, out);
+                }
+            catch(IOException e)
+                {
+                    Log.e("tag", "Failed to copy asset file: " + idioma, e);
+                }
+            finally
+                {
+                    if (in != null)
+                        {
+                            try
+                                {
+                                    in.close();
+                                }
+                            catch (IOException e)
+                                {
+                                    // NOOP
+                                }
+                        }
+                    if (out != null)
+                        {
+                            try
+                                {
+                                    out.close();
+                                }
+                            catch (IOException e)
+                                {
+                                    // NOOP
+                                }
+                    }
+
+        }
+    }
+    private void copyFile(InputStream in, OutputStream out) throws IOException
+        {
+            byte[] buffer = new byte[1024];
+            int read;
+            while((read = in.read(buffer)) != -1){
+                out.write(buffer, 0, read);
+            }
+        }
+
 
     /**
      * Función que extra el texto de una imagen.
