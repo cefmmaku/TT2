@@ -55,6 +55,11 @@ public class CamaraActivity extends AppCompatActivity{
         requestWindowFeature(Window.FEATURE_NO_TITLE);//will hide the title
         Objects.requireNonNull(getSupportActionBar()).hide();
         setContentView(R.layout.activity_guia);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         playInstrucciones();
         configurarVistas();
         dibujarGuia();
@@ -165,7 +170,7 @@ public class CamaraActivity extends AppCompatActivity{
      * */
     private void tomarFoto() {
 
-        PhotoResult resultado = mManejadorCamara.takePicture();
+        final PhotoResult resultado = mManejadorCamara.autoFocus().takePicture();
 
         resultado.toBitmap().whenDone(new WhenDoneListener<BitmapPhoto>() {
             @Override
@@ -174,7 +179,9 @@ public class CamaraActivity extends AppCompatActivity{
                      tts.escucharEnAudio(getResources().getString(R.string.fallo_tomar_foto));
                     return;
                 }
-                procesarFoto(Segmentacion.cortarImagen(bitmapPhoto.bitmap));
+                Bitmap imagenCortada = Segmentacion.cortarImagen(bitmapPhoto.bitmap);
+                mGuia.setImageBitmap(imagenCortada);
+                procesarFoto(imagenCortada);
             }
         });
     }

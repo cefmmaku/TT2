@@ -48,7 +48,7 @@ public class ModuloOCR {
         mTess.init(rutaArchivo, language);
         mTess.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, whiteList);
         mTess.setVariable(TessBaseAPI.VAR_CHAR_BLACKLIST, blackList);
-        mTess.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO_OSD);
+        mTess.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT);
     }
 
     /**
