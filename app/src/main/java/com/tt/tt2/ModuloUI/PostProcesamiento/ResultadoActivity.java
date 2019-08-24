@@ -12,14 +12,16 @@ import com.tt.tt2.ModuloUI.Camara.CamaraActivity;
 import com.tt.tt2.R;
 import com.tt.tt2.TTS.ModuloTTS;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class ResultadoActivity extends AppCompatActivity {
 
     private TextView mTextoExtraidoTextview;
 
-    private String mTextoextraido;
+    private ArrayList<String> mListadoPalabras;
 
+    private StringBuilder mTextoextraido = new StringBuilder();
 
     private ModuloTTS tts = new ModuloTTS(this);
 
@@ -60,11 +62,17 @@ public class ResultadoActivity extends AppCompatActivity {
 
 
     /**
-     * Método que recibe los datos de la actividad anterior y los coloca en su respectivo elemento.
+     * Método que recibe los datos del OCR, siendo el listado de palabras filtradas y los coloca en su respectivo elemento.
      * */
     private void recibirDatos()
         {
-            mTextoextraido = getIntent().getStringExtra(CamaraActivity.RESULTADO_OCR_KEY);
+            mListadoPalabras = getIntent().getStringArrayListExtra(CamaraActivity.RESULTADO_OCR_KEY);
+
+            for(String palabra : mListadoPalabras)
+                {
+                    mTextoextraido.append(palabra);
+                    mTextoextraido.append(" ");
+                }
             mTextoExtraidoTextview.setText(mTextoextraido);
             playAudioTextoExtraido();
         }
@@ -74,7 +82,7 @@ public class ResultadoActivity extends AppCompatActivity {
      * */
     private void playAudioTextoExtraido()
         {
-            tts.escucharEnAudio(mTextoextraido);
+            tts.escucharEnAudio(mTextoextraido.toString());
         }
 
 

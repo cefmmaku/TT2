@@ -12,6 +12,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.tt.tt2.Algoritmos.FiltradoTexto;
 import com.tt.tt2.Algoritmos.Segmentacion;
 import com.tt.tt2.ModuloUI.PostProcesamiento.ResultadoActivity;
 import com.tt.tt2.OCR.ModuloOCR;
@@ -216,7 +217,7 @@ public class CamaraActivity extends AppCompatActivity{
                         {
                             //srcText contiene el texto reconocido
                             Intent irAResultado = new Intent(getApplicationContext(), ResultadoActivity.class);
-                            irAResultado.putExtra(RESULTADO_OCR_KEY, srcText);
+                            irAResultado.putExtra(RESULTADO_OCR_KEY, FiltradoTexto.filtroPalabras(srcText));
                             startActivity(irAResultado);
                             mLoader.setVisibility(View.GONE);
                         }
