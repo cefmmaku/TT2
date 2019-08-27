@@ -8,21 +8,30 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
+import static org.opencv.imgproc.Imgproc.ADAPTIVE_THRESH_MEAN_C;
+import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
+
 public class OpenCV {
 
     public static Bitmap umbralizar(Bitmap imagenOriginal, double umbral, int tipo)
         {
-            Mat imagenOriginalMat = new Mat (imagenOriginal.getWidth(), imagenOriginal.getHeight(), CvType.CV_8UC1);
-            Mat imagenBinaria = new Mat();
-            Imgproc.cvtColor(imagenOriginalMat, imagenOriginalMat, Imgproc.COLOR_GRAY2RGB);
-            Imgproc.threshold(imagenOriginalMat, imagenBinaria, umbral, 255, tipo);
-            return matToBitmap(imagenBinaria);
+            Mat imagenOriginalMat = new Mat();
+            Utils.bitmapToMat(imagenOriginal, imagenOriginalMat);
+            Imgproc.cvtColor(imagenOriginalMat, imagenOriginalMat, Imgproc.COLOR_BGR2GRAY, 4);
+            Imgproc.threshold(imagenOriginalMat, imagenOriginalMat, umbral, 255, tipo);
+            Utils.matToBitmap(imagenOriginalMat, imagenOriginal);
+            return imagenOriginal;
         }
 
-    public static Bitmap umbralizacionAdaptativa()
-        {
-            return null;
-        }
+    public static Bitmap umbralizacionAdaptativa(Bitmap imagenOriginal)
+    {
+        Mat imagenOriginalMat = new Mat();
+        Utils.bitmapToMat(imagenOriginal, imagenOriginalMat);
+        Imgproc.cvtColor(imagenOriginalMat, imagenOriginalMat, Imgproc.COLOR_BGR2GRAY, 4);
+        Imgproc.adaptiveThreshold(imagenOriginalMat, imagenOriginalMat, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 15, 40);
+        Utils.matToBitmap(imagenOriginalMat, imagenOriginal);
+        return imagenOriginal;
+    }
 
     /**
      * Función que convierte una imagen en formato Bitmap a una nueva en formato Mat, el cual
@@ -47,7 +56,7 @@ public class OpenCV {
         {
             Bitmap bmp;
             try {
-                    Imgproc.cvtColor(imagenOriginal, imagenOriginal, Imgproc.COLOR_GRAY2RGBA, 4);
+                    Imgproc.cvtColor(imagenOriginal, imagenOriginal, Imgproc.COLOR_GRAY2RGBA, 3);
                     bmp = Bitmap.createBitmap(imagenOriginal.cols(), imagenOriginal.rows(), Bitmap.Config.ARGB_8888);
                     Utils.matToBitmap(imagenOriginal, bmp);
                     return bmp;

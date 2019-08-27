@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -107,10 +108,10 @@ public class CamaraActivity extends AppCompatActivity{
     private void cargarOpenCV()
         {
             if (!OpenCVLoader.initDebug()) {
-                //Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+                Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
                 OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
             } else {
-                //Log.d("OpenCV", "OpenCV library found inside package. Using it!");
+                Log.d("OpenCV", "OpenCV library found inside package. Using it!");
                 mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
             }
         }
@@ -216,7 +217,8 @@ public class CamaraActivity extends AppCompatActivity{
                     return;
                 }
                 Bitmap imagenCortada = Segmentacion.cortarImagen(bitmapPhoto.bitmap);
-                mGuia.setImageBitmap(OpenCV.umbralizar(imagenCortada, 150.00, Umbralizacion.BINARIO_INVERTIDO.getTipo()));
+                //mGuia.setImageBitmap(OpenCV.umbralizar(imagenCortada, 150.00, Umbralizacion.BINARIO_INVERTIDO.getTipo()));
+                mGuia.setImageBitmap(OpenCV.umbralizacionAdaptativa(imagenCortada));
                 //procesarFoto(imagenCortada);
             }
         });
