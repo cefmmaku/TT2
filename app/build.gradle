@@ -35,6 +35,7 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     implementation 'io.fotoapparat:fotoapparat:2.7.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation project(path: ':openCVLibrary343')
 }
 repositories {
     mavenCentral()

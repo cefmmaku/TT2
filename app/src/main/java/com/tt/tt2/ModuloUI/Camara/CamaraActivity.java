@@ -13,11 +13,17 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.tt.tt2.Algoritmos.FiltradoTexto;
+import com.tt.tt2.Algoritmos.OpenCV;
 import com.tt.tt2.Algoritmos.Segmentacion;
+import com.tt.tt2.Algoritmos.Umbralizacion;
 import com.tt.tt2.ModuloUI.PostProcesamiento.ResultadoActivity;
 import com.tt.tt2.OCR.ModuloOCR;
 import com.tt.tt2.R;
 import com.tt.tt2.TTS.ModuloTTS;
+
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
 
 import java.util.Objects;
 
@@ -50,6 +56,23 @@ public class CamaraActivity extends AppCompatActivity{
 
     public static final String RESULTADO_OCR_KEY = "ocrtexto";
 
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case LoaderCallbackInterface.SUCCESS:
+                {
+                    //Log.i("OpenCV", "OpenCV loaded successfully");
+                    //imageMat=new Mat();
+                } break;
+                default:
+                {
+                    super.onManagerConnected(status);
+                } break;
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +89,7 @@ public class CamaraActivity extends AppCompatActivity{
         dibujarGuia();
         configuraCamara();
         iniciarPreview();
+        cargarOpenCV();
     }
 
     @Override
@@ -79,6 +103,17 @@ public class CamaraActivity extends AppCompatActivity{
         super.onPause();
         tts.detenerVoz();
     }
+
+    private void cargarOpenCV()
+        {
+            if (!OpenCVLoader.initDebug()) {
+                //Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+                OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
+            } else {
+                //Log.d("OpenCV", "OpenCV library found inside package. Using it!");
+                mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+            }
+        }
 
     private void configurarVistas()
         {
@@ -181,8 +216,8 @@ public class CamaraActivity extends AppCompatActivity{
                     return;
                 }
                 Bitmap imagenCortada = Segmentacion.cortarImagen(bitmapPhoto.bitmap);
-                mGuia.setImageBitmap(imagenCortada);
-                procesarFoto(imagenCortada);
+                mGuia.setImageBitmap(OpenCV.umbralizar(imagenCortada, 150.00, Umbralizacion.BINARIO_INVERTIDO.getTipo()));
+                //procesarFoto(imagenCortada);
             }
         });
     }
