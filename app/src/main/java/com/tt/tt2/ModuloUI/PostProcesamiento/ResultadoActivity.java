@@ -8,6 +8,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.tt.tt2.Algoritmos.ObtencionDeRuta;
 import com.tt.tt2.ModuloUI.Camara.CamaraActivity;
 import com.tt.tt2.R;
 import com.tt.tt2.TTS.ModuloTTS;
@@ -18,8 +19,6 @@ import java.util.Objects;
 public class ResultadoActivity extends AppCompatActivity {
 
     private TextView mTextoExtraidoTextview;
-
-    private ArrayList<String> mListadoPalabras;
 
     private StringBuilder mTextoextraido = new StringBuilder();
 
@@ -66,14 +65,15 @@ public class ResultadoActivity extends AppCompatActivity {
      * */
     private void recibirDatos()
         {
-            mListadoPalabras = getIntent().getStringArrayListExtra(CamaraActivity.RESULTADO_OCR_KEY);
+            ArrayList<String> mListadoPalabras = getIntent().getStringArrayListExtra(CamaraActivity.RESULTADO_OCR_KEY);
 
             for(String palabra : mListadoPalabras)
                 {
                     mTextoextraido.append(palabra);
                     mTextoextraido.append(" ");
                 }
-            mTextoExtraidoTextview.setText(mTextoextraido);
+            String ruta = ObtencionDeRuta.obtenRuta(mTextoextraido.toString());
+            mTextoExtraidoTextview.setText(mTextoextraido + "\n" + ruta);
             playAudioTextoExtraido();
         }
 

@@ -95,7 +95,7 @@
 
                     <TextView
                         android:id="@+id/resultado_texto_obtenido_tv"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="16dp"
@@ -103,6 +103,7 @@
                         android:layout_marginBottom="16dp"
                         android:text="@string/texto_titulo"
                         android:textColor="@color/color_negro"
+                        android:textAlignment="center"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

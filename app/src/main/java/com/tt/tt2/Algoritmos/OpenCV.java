@@ -6,6 +6,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.CvException;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import static org.opencv.imgproc.Imgproc.ADAPTIVE_THRESH_MEAN_C;
@@ -14,14 +15,53 @@ import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
 public class OpenCV {
 
     public static Bitmap umbralizar(Bitmap imagenOriginal, double umbral, int tipo)
+    {
+        Mat imagenOriginalMat = new Mat();
+        Utils.bitmapToMat(imagenOriginal, imagenOriginalMat);
+        Imgproc.cvtColor(imagenOriginalMat, imagenOriginalMat, Imgproc.COLOR_BGR2GRAY, 4);
+        Imgproc.threshold(imagenOriginalMat, imagenOriginalMat, umbral, 255, tipo);
+        Utils.matToBitmap(imagenOriginalMat, imagenOriginal);
+        return imagenOriginal;
+    }
+
+    public static Bitmap colorAGrises(Bitmap imagenOriginal)
+    {
+        Mat imagenOriginalMat = new Mat();
+        Utils.bitmapToMat(imagenOriginal, imagenOriginalMat);
+        Imgproc.cvtColor(imagenOriginalMat, imagenOriginalMat, Imgproc.COLOR_BGR2GRAY, 4);
+        Utils.matToBitmap(imagenOriginalMat, imagenOriginal);
+        return imagenOriginal;
+    }
+
+    public static Bitmap erosionar(Bitmap imagenOriginal)
         {
-            Mat imagenOriginalMat = new Mat();
-            Utils.bitmapToMat(imagenOriginal, imagenOriginalMat);
-            Imgproc.cvtColor(imagenOriginalMat, imagenOriginalMat, Imgproc.COLOR_BGR2GRAY, 4);
-            Imgproc.threshold(imagenOriginalMat, imagenOriginalMat, umbral, 255, tipo);
-            Utils.matToBitmap(imagenOriginalMat, imagenOriginal);
+            Mat imagenMat = new Mat();
+            Utils.bitmapToMat(imagenOriginal, imagenMat);
+            Imgproc.erode(imagenMat, imagenMat, Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(2,2)));
+            Utils.matToBitmap(imagenMat, imagenOriginal);
             return imagenOriginal;
         }
+
+    public static Bitmap dilatar(Bitmap imagenOriginal)
+    {
+        Mat imagenMat = new Mat();
+        Utils.bitmapToMat(imagenOriginal, imagenMat);
+        Imgproc.dilate(imagenMat, imagenMat, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2)));
+        Utils.matToBitmap(imagenMat, imagenOriginal);
+        return imagenOriginal;
+    }
+
+    public static Bitmap morfologia(Bitmap imagenOriginal)
+    {
+        Mat imagenMat = new Mat();
+        Utils.bitmapToMat(imagenOriginal, imagenMat);
+        // Creating kernel matrix
+        Mat kernel = Mat.ones(3,3, CvType.CV_32F);
+        // Applying Blur effect on the Image
+        Imgproc.morphologyEx(imagenMat, imagenMat, Imgproc.MORPH_RECT, kernel);
+        Utils.matToBitmap(imagenMat, imagenOriginal);
+        return imagenOriginal;
+    }
 
     public static Bitmap umbralizacionAdaptativa(Bitmap imagenOriginal)
     {

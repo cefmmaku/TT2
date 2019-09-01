@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.tt.tt2.Algoritmos.FiltradoTexto;
 import com.tt.tt2.Algoritmos.OpenCV;
@@ -216,10 +217,7 @@ public class CamaraActivity extends AppCompatActivity{
                      tts.escucharEnAudio(getResources().getString(R.string.fallo_tomar_foto));
                     return;
                 }
-                Bitmap imagenCortada = Segmentacion.cortarImagen(bitmapPhoto.bitmap);
-                //mGuia.setImageBitmap(OpenCV.umbralizar(imagenCortada, 150.00, Umbralizacion.BINARIO_INVERTIDO.getTipo()));
-                mGuia.setImageBitmap(OpenCV.umbralizacionAdaptativa(imagenCortada));
-                //procesarFoto(imagenCortada);
+                procesarFoto(bitmapPhoto.bitmap);
             }
         });
     }
@@ -227,12 +225,31 @@ public class CamaraActivity extends AppCompatActivity{
     /**
      * Método en el que se trabajará la imagen antes de ser enviada al OCR, aquí se aplicarán
      * todos los métodos y algoritmos necesarios para tratar la imagen, el pre procesamiento.
-     * @param segmentada la imagen cortada en forma del cuadro guía y en formato de Bitmap.
+     * @param foto la imagen tomada por la camara en formato de Bitmap.
      * */
-    private void procesarFoto(Bitmap segmentada)
+    private void procesarFoto(Bitmap foto)
+        {
+            Bitmap imagenSegmentada, imagenProcesada;
+            imagenSegmentada = Segmentacion.cortarImagen(foto);
+            Log.d("Debuggeando",  "La imagen cortada mide: " + imagenSegmentada.getWidth() + "x" + imagenSegmentada.getHeight());
+            imagenProcesada = OpenCV.umbralizar(imagenSegmentada, 150.00, Umbralizacion.BINARIO_INVERTIDO.getTipo());
+            //imagenProcesada = OpenCV.colorAGrises(imagenSegmentada);
+            //imagenProcesada = OpenCV.erosionar(imagenProcesada);
+            //imagenProcesada = OpenCV.dilatar(imagenProcesada);
+            mGuia.setImageBitmap(imagenProcesada);
+            //mGuia.setImageBitmap(OpenCV.umbralizacionAdaptativa(imagenCortada));
+            procesarConOCR(imagenProcesada);
+        }
+
+    /**
+     * Método que inicia el proceso de extracción del texto con el OCR mediante la inicialización del mismo y el paso
+     * de la fotografía ya segmentada y procesada.
+     * @param procesada la fotografía a la cual ya se le aplicaron todos los métodos de procesamiento y segmentación.
+     * */
+    private void procesarConOCR(Bitmap procesada)
         {
             mTessOCR = new ModuloOCR(this, "spa");
-            doOCR(segmentada);
+            doOCR(procesada);
         }
 
     /**
