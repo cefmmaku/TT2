@@ -8,12 +8,14 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.tt.tt2.Algoritmos.ObtencionDeRuta;
+import com.tt.tt2.Data.GestorData;
 import com.tt.tt2.ModuloUI.Camara.CamaraActivity;
 import com.tt.tt2.R;
 import com.tt.tt2.TTS.ModuloTTS;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class ResultadoActivity extends AppCompatActivity {
@@ -24,6 +26,8 @@ public class ResultadoActivity extends AppCompatActivity {
 
     private ModuloTTS tts = new ModuloTTS(this);
 
+    private GestorData mData;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +35,7 @@ public class ResultadoActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).hide();
         setContentView(R.layout.resultado_activity);
         configurarVistas();
+        initDatos();
         recibirDatos();
     }
 
@@ -59,6 +64,11 @@ public class ResultadoActivity extends AppCompatActivity {
             mTextoExtraidoTextview = findViewById(R.id.resultado_texto_obtenido_tv);
         }
 
+    private void initDatos()
+        {
+            mData = new GestorData();
+            mData.initData();
+        }
 
     /**
      * Método que recibe los datos del OCR, siendo el listado de palabras filtradas y los coloca en su respectivo elemento.
@@ -72,8 +82,6 @@ public class ResultadoActivity extends AppCompatActivity {
                     mTextoextraido.append(palabra);
                     mTextoextraido.append(" ");
                 }
-            String ruta = ObtencionDeRuta.obtenRuta(mTextoextraido.toString());
-            mTextoExtraidoTextview.setText(mTextoextraido + "\n" + ruta);
             playAudioTextoExtraido();
         }
 
@@ -82,8 +90,38 @@ public class ResultadoActivity extends AppCompatActivity {
      * */
     private void playAudioTextoExtraido()
         {
-            tts.escucharEnAudio(mTextoextraido.toString());
+            ArrayList<String> rutas;
+            rutas = mData.getRutasAsociadas(mTextoextraido.toString().toLowerCase());
+            String ruta = obtieneMasFrecuente(rutas);
+            mTextoExtraidoTextview.setText(mTextoextraido.toString() + "\n" + ruta);
+            tts.escucharEnAudio(ruta);
         }
 
+    /**
+     * Método que retorna la ruta que tuvo más ocurrencia de paradas dentro de las paradas encontradas con el OCR.
+     * @param list lista de rutas por cada parada donde las rutas se pueden repetir dependiendo de cuantas paradas de la misma
+     *             fueron encontradas con el OCR.
+     * */
+    public String obtieneMasFrecuente(ArrayList<String> list)
+    {
+        Map<String, Integer> hm = new HashMap<>();
+        int maxValue = -1;
+        String indice = "";
+
+        for (String i : list) {
+            Integer j = hm.get(i);
+            hm.put(i, (j == null) ? 1 : j + 1);
+        }
+
+        // displaying the occurrence of elements in the arraylist
+        for (Map.Entry<String, Integer> val : hm.entrySet()) {
+            if((val.getValue() > maxValue))
+                {
+                    maxValue =  val.getValue();
+                    indice = val.getKey();
+                }
+        }
+        return "La ruta es " + indice;
+    }
 
 }

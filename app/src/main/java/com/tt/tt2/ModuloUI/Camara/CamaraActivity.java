@@ -220,6 +220,7 @@ public class CamaraActivity extends AppCompatActivity{
                 procesarFoto(bitmapPhoto.bitmap);
             }
         });
+        mManejadorCamara.stop();
     }
 
     /**
