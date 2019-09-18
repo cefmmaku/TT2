@@ -3,6 +3,7 @@ package com.tt.tt2.Algoritmos;
 import android.graphics.Bitmap;
 
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvException;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -33,14 +34,37 @@ public class OpenCV {
         return imagenOriginal;
     }
 
+    public static Bitmap ecualizar(Bitmap imagenOriginal)
+    {
+        Mat imagenOriginalMat = new Mat();
+        Utils.bitmapToMat(imagenOriginal, imagenOriginalMat);
+
+        Mat frameGrey = new Mat(imagenOriginalMat.rows(), imagenOriginalMat.cols(), CvType.CV_8UC1);
+        Imgproc.cvtColor(imagenOriginalMat, frameGrey, Imgproc.COLOR_BGR2GRAY, 1);
+
+        Imgproc.equalizeHist(frameGrey, frameGrey);
+
+        Utils.matToBitmap(frameGrey, imagenOriginal);
+        return imagenOriginal;
+    }
+
     public static Bitmap erosionar(Bitmap imagenOriginal)
         {
             Mat imagenMat = new Mat();
             Utils.bitmapToMat(imagenOriginal, imagenMat);
-            Imgproc.erode(imagenMat, imagenMat, Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(2,2)));
+            Imgproc.erode(imagenMat, imagenMat, Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(7,7)));
             Utils.matToBitmap(imagenMat, imagenOriginal);
             return imagenOriginal;
         }
+
+    public static Bitmap invertirBinario(Bitmap imagenOriginal)
+    {
+        Mat imagenMat = new Mat();
+        Utils.bitmapToMat(imagenOriginal, imagenMat);
+        Core.bitwise_not(imagenMat, imagenMat);
+        Utils.matToBitmap(imagenMat, imagenOriginal);
+        return imagenOriginal;
+    }
 
     public static Bitmap dilatar(Bitmap imagenOriginal)
     {

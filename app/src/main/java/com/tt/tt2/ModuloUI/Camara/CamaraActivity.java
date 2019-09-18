@@ -218,9 +218,9 @@ public class CamaraActivity extends AppCompatActivity{
                     return;
                 }
                 procesarFoto(bitmapPhoto.bitmap);
+                mManejadorCamara.stop();
             }
         });
-        mManejadorCamara.stop();
     }
 
     /**
@@ -232,10 +232,12 @@ public class CamaraActivity extends AppCompatActivity{
         {
             Bitmap imagenSegmentada, imagenProcesada;
             imagenSegmentada = Segmentacion.cortarImagen(foto);
-            Log.d("Debuggeando",  "La imagen cortada mide: " + imagenSegmentada.getWidth() + "x" + imagenSegmentada.getHeight());
             imagenProcesada = OpenCV.umbralizar(imagenSegmentada, 150.00, Umbralizacion.BINARIO_INVERTIDO.getTipo());
             //imagenProcesada = OpenCV.colorAGrises(imagenSegmentada);
-            //imagenProcesada = OpenCV.erosionar(imagenProcesada);
+            imagenProcesada = OpenCV.ecualizar(imagenSegmentada);
+            imagenProcesada = OpenCV.invertirBinario(imagenProcesada);
+            imagenProcesada = OpenCV.erosionar(imagenProcesada);
+            imagenProcesada = OpenCV.invertirBinario(imagenProcesada);
             //imagenProcesada = OpenCV.dilatar(imagenProcesada);
             mGuia.setImageBitmap(imagenProcesada);
             //mGuia.setImageBitmap(OpenCV.umbralizacionAdaptativa(imagenCortada));
